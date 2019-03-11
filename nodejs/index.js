@@ -46,39 +46,6 @@ const apiFetch = () => {
   })
 }
 
-// Create an html template, inserting an html string
-
-const htmlTemplateCreate = htmlString => `<!DOCTYPE html>
-<html>
-<head>
-  <title>Test</title>
-</head>
-<body>
-  <div id="client-list">
-    <h2>Client side rendered</h2>
-  </div>
-  <div id="server-list">
-    <h2>Server side rendered</h2>
-    ${htmlString}
-  </div>
-  <script src="/static/scripts.js"></script>
-</body>
-</html>`
-
-// Create an html list from json data
-
-const htmlListCreate = json => {
-  let htmlListString = '<ul>'
-  json.map(entry => {
-    htmlListString += `<li>
-  <img src="${entry.img}">
-  <p>${entry.name}: ${entry.value}</p>
-</li>`
-  })
-  htmlListString += '</ul>'
-  return htmlListString
-}
-
 // Server
 
 const server = http.createServer((req, res) => {
@@ -87,10 +54,10 @@ const server = http.createServer((req, res) => {
 
   // Fetch the api
   apiFetch().then(json => {
-    res.write(htmlTemplateCreate(htmlListCreate(json)))
+    res.write(json)
     res.end()
   }).catch(error => {
-    res.write(htmlTemplateCreate(`<p>${error}</p>`))
+    res.write(error)
     res.end()
   })
 })
