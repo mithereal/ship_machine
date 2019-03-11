@@ -1,6 +1,6 @@
 <?php
 
-  // Good job here! 
+  // we want to parse routes here 
 
   $db = Array (
     Array ("name" => "apples", "value" => 5, "img" => "/content/apple.jpg"),
