@@ -5,6 +5,7 @@
 
 # fetch amazon mws node 
 npm i amazon-mws --save
+npm i mysql --save
 
 chmod +x /nodejs/fetch_amazon_orders.js
 

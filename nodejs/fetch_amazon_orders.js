@@ -6,7 +6,18 @@ var MWS_AUTH_TOKEN = process.env.AWS_AUTH_TOKEN || 'AWS_AUTH_TOKEN';
 var MWS_SELLER_ID = process.env.AWS_SELLER_ID || 'AWS_SELLER_ID';
 var MWS_MARKET_PLACE_ID = process.env.AWS_MARKET_PLACE_ID || 'AWS_MARKET_PLACE_ID';
 
+var MWS_MARKET_PLACE_ID = process.env.AWS_MARKET_PLACE_ID || 'AWS_MARKET_PLACE_ID';
+
 var amazonMws = require('amazon-mws')(MWS_ACCESS_KEY_ID,MWS_SECRET_ACCESS_KEY);
+
+var mysql      = require('mysql');
+
+var connection = mysql.createConnection({
+  host     : 'localhost',
+  user     : process.env.MYSQL_USER,
+  password : process.env.MYSQL_PASSWORD,
+  database : process.env.MYSQL_DATABASE
+})
 
 
 var today = new Date();
@@ -16,6 +27,19 @@ var yyyy = today.getFullYear();
 
 function showOrder(item, index, arr) {
     console.log('item:', item)
+  }
+
+function insertOrder(item, index, arr) {
+    connection.connect();
+ 
+//connection.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
+//  if (error) throw error;
+//  console.log('The solution is: ', results[0].solution);
+//});
+ 
+    console.log('item:', item)
+
+    connection.end();
   }
 
 var orders = amazonMws.orders.search({
@@ -37,8 +61,9 @@ var orders = amazonMws.orders.search({
 });
 
 if(orders != null){
-
+    
     orders.forEach(showOrder)
+   // orders.forEach(insertOrder)
 
 }else{
     console.log('response', 'there were no orders')
