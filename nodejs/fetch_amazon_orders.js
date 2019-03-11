@@ -30,7 +30,6 @@ function showOrder(item, index, arr) {
   }
 
 function insertOrder(item, index, arr) {
-    connection.connect();
  
 //connection.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
 //  if (error) throw error;
@@ -39,7 +38,6 @@ function insertOrder(item, index, arr) {
  
     console.log('item:', item)
 
-    connection.end();
   }
 
 var orders = amazonMws.orders.search({
@@ -63,7 +61,9 @@ var orders = amazonMws.orders.search({
 if(orders != null){
     
     orders.forEach(showOrder)
+    connection.connect();
    // orders.forEach(insertOrder)
+   connection.end();
 
 }else{
     console.log('response', 'there were no orders')
