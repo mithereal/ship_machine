@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 
-var amazonMws = require('amazon-mws')('AWS_ACCESS_KEY_ID','AWS_SECRET_ACCESS_KEY');
+var MWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || 'AWS_ACCESS_KEY_ID';
+var MWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || 'AWS_SECRET_ACCESS_KEY';
+var MWS_AUTH_TOKEN = process.env.AWS_AUTH_TOKEN || 'AWS_AUTH_TOKEN';
+var MWS_SELLER_ID = process.env.AWS_SELLER_ID || 'AWS_SELLER_ID';
+var MWS_MARKET_PLACE_ID = process.env.AWS_MARKET_PLACE_ID || 'AWS_MARKET_PLACE_ID';
 
-var MWS_AUTH_TOKEN = require('AWS_AUTH_TOKEN');
-var MWS_SELLER_ID = require('AWS_SELLER_ID');
-var MWS_MARKET_PLEACE_ID = require('AWS_MARKET_PLEACE_ID');
+var amazonMws = require('amazon-mws')(MWS_ACCESS_KEY_ID,MWS_SECRET_ACCESS_KEY);
+
 
 var today = new Date();
 var dd = today.getDate();
@@ -20,7 +23,7 @@ var orders = amazonMws.orders.search({
     'Action': 'ListOrders',
     'SellerId': MWS_SELLER_ID,
     'MWSAuthToken': MWS_AUTH_TOKEN,
-    'MarketplaceId.Id.1': MWS_MARKET_PLEACE_ID,
+    'MarketplaceId.Id.1': MWS_MARKET_PLACE_ID,
     'LastUpdatedAfter': new Date(yyyy, mm, dd),
     'OrderStatus.Status.1': 'Pending',
     'OrderStatus.Status.2': 'Canceled'
