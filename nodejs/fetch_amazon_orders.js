@@ -20,7 +20,6 @@ var connection = mysql.createConnection({
 })
 
 
-
 var today = new Date();
 var dd = today.getDate();
 var mm = today.getMonth() + 1; //January is 0!
@@ -38,16 +37,20 @@ function insertOrder(item, index, arr) {
 
     var items = result["ListOrderItemsResponse"]["ListOrderItemsResult"]["OrderItems"];
 
-    var query = "INSERT INTO amazon_orders(AmazonOrderId, serialized) VALUES(id,items);"
- 
-connection.query(query, function (error, results, fields) {
-  if (error) throw error;
-  console.log('inserted' + id);
-});
- 
-    console.log('item:', id)
+    var items_string =  JSON.stringify(items);
 
+    var query = "INSERT INTO amazon_orders(AmazonOrderId, serialized) VALUES(id,items_string) ON DUPLICATE KEY UPDATE `serialized` = items_string;"
+ 
+     connection.query(query, function (error, results, fields) {
+  
+        if (error){ 
+         return  error; 
+       }else{
+         console.log('inserted: ' + id);
+        return id;
   }
+});
+
 
 var orders = amazonMws.orders.search({
     'Version': '2013-09-01',
