@@ -1,16 +1,26 @@
 <?php
 
-  // we want to parse routes here 
+require 'rb.php';
 
-  $db = Array (
-    Array ("name" => "apples", "value" => 5, "img" => "/content/apple.jpg"),
-    Array ("name" => "oranges", "value" => 3, "img" => "/content/orange.jpg"),
-    Array ("name" => "pears", "value" => 12, "img" => "/content/pear.jpg")
-  );
+R::setup( 'mysql:host=localhost;dbname=orders',
+getenv('MYSQL_USER'), getenv('MYSQL_PASSWORD') ); 
+
+
+$result = null;
+  // we want to parse routes here
+
+  if($_GET["type"] === "amazon"){
+    $result =  R::getAll( 'SELECT * FROM amazon_orders' );
+  } 
+
+  if($_GET["type"] === "ebay"){
+    $result =  R::getAll( 'SELECT * FROM ebay_orders' );
+  } 
+  R::close();
 
   header("Content-type:application/json");
   header("HTTP/1.1 200 Success");
 
-  echo json_encode($db);
+  echo json_encode($result);
 
 ?>
