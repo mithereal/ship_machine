@@ -1,4 +1,4 @@
 #!/bin/sh
 
-# code goes here.
-echo "This is a script, run by cron!"
+# fetch amazon orders.
+/nodejs/fetch_amazon_orders.js
