@@ -20,23 +20,32 @@ var connection = mysql.createConnection({
 })
 
 
+
 var today = new Date();
 var dd = today.getDate();
 var mm = today.getMonth() + 1; //January is 0!
 var yyyy = today.getFullYear();
 
-function showOrder(item, index, arr) {
-    console.log('item:', item)
-  }
+var convert = require('xml-js');
+
 
 function insertOrder(item, index, arr) {
+    var id = item["AmazonOrderId"];
+
+    var xml = orderRequest(id);
+
+    var result = convert.xml2json(xml, {compact: true, spaces: 4});
+
+    var items = result["ListOrderItemsResponse"]["ListOrderItemsResult"]["OrderItems"];
+
+    var query = "INSERT INTO amazon_orders(AmazonOrderId, serialized) VALUES(id,items);"
  
-//connection.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
-//  if (error) throw error;
-//  console.log('The solution is: ', results[0].solution);
-//});
+connection.query(query, function (error, results, fields) {
+  if (error) throw error;
+  console.log('inserted' + id);
+});
  
-    console.log('item:', item)
+    console.log('item:', id)
 
   }
 
@@ -58,12 +67,31 @@ var orders = amazonMws.orders.search({
     return response;
 });
 
+var orderRequest = function (id) {
+    amazonMws.orders.search({
+        'Version': '2013-09-01',
+        'Action': 'ListOrderItems',
+        'SellerId': MWS_SELLER_ID,
+        'MWSAuthToken': MWS_AUTH_TOKEN,
+        'AmazonOrderId': id
+    }, function (error, response) {
+        if (error) {
+            console.log('error ', error);
+            return null;
+        }
+        console.log('response', response);
+        return response;
+    });
+};
+
 if(orders != null){
+    var orders_obj = convert.xml2json(xml, {compact: true, spaces: 4});
     
-    orders.forEach(showOrder)
     connection.connect();
-   // orders.forEach(insertOrder)
-   connection.end();
+
+    orders_obj["ListOrdersResponse"]["ListOrdersResult"]["Orders"].forEach(insertOrder)
+
+    connection.end();
 
 }else{
     console.log('response', 'there were no orders')
