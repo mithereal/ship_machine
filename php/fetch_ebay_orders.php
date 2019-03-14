@@ -17,7 +17,7 @@ use PhpAmqpLib\Message\AMQPMessage;
 
 function streamOrder($order){
 
-    $messageBody = order;
+    $messageBody = $order;
     $message = new AMQPMessage($messageBody, array('content_type' => 'text/plain', 'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT));
     $channel->basic_publish($message, $exchange);
         return null;
@@ -35,9 +35,8 @@ $ampq_port = getenv('AMPQ_PORT');
 $ampq_user = getenv('AMPQ_USER');
 $ampq_pass = getenv('AMPQ_PASS');
 $ampq_vhost = getenv('AMPQ_VHOST');
-$ampq_exchange = getenv('AMPQ_EXCHANGE');
 
-$exchange = ampq_exchange;
+$exchange = getenv('AMPQ_EXCHANGE');
 $queue = 'ebay_orders';
 
 $last_update = null;
@@ -116,7 +115,7 @@ foreach($response->getOrderArray() as $o){
 
 
 foreach($orders as $order){
-    streamOrder($order);
+    streamOrder(json_encode($order));
 }
 
 $channel->close();
