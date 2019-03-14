@@ -17,7 +17,7 @@ use PhpAmqpLib\Message\AMQPMessage;
 
 function streamOrder($order){
 
-    $messageBody = implode(' ', array_slice($argv, 1));
+    $messageBody = order;
     $message = new AMQPMessage($messageBody, array('content_type' => 'text/plain', 'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT));
     $channel->basic_publish($message, $exchange);
         return null;
