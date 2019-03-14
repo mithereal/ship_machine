@@ -10,14 +10,15 @@ var MWS_MARKET_PLACE_ID = process.env.AWS_MARKET_PLACE_ID || 'AWS_MARKET_PLACE_I
 
 var amazonMws = require('amazon-mws')(MWS_ACCESS_KEY_ID,MWS_SECRET_ACCESS_KEY);
 
-var mysql      = require('mysql');
+var AMPQ_HOST = process.env.AMPQ_HOST || 'AMPQ_HOST';
+var AMPQ_PORT = process.env.AMPQ_PORT || 'AMPQ_PORT';
+var AMPQ_USER = process.env.AMPQ_USER || 'AMPQ_USER';
+var AMPQ_PASS = process.env.AMPQ_PASS || 'AMPQ_PASS';
+var AMPQ_VHOST = process.env.VAMPQ_HOST || 'AMPQ_VHOST';
 
-var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : process.env.MYSQL_USER,
-  password : process.env.MYSQL_PASSWORD,
-  database : process.env.MYSQL_DATABASE
-})
+var q = 'amazon_orders';
+ 
+var open = require('amqplib').connect(AMPQ_HOST);
 
 
 var today = new Date();
@@ -27,29 +28,47 @@ var yyyy = today.getFullYear();
 
 var convert = require('xml-js');
 
+function streamOrder(order){
+    open.then(function(conn) {
+        return conn.createChannel();
+      }).then(function(ch) {
+        return ch.assertQueue(q).then(function(ok) {
+          return ch.sendToQueue(q, Buffer.from(order));
+        });
+      }).catch(console.warn);
+}
 
-function insertOrder(item, index, arr) {
-    var id = item["AmazonOrderId"];
+function streamConsole(){
+    // Consumer
+    open.then(function(conn) {
+        return conn.createChannel();
+      }).then(function(ch) {
+        return ch.assertQueue(q).then(function(ok) {
+          return ch.consume(q, function(msg) {
+            if (msg !== null) {
+              console.log(msg.content.toString());
+              ch.ack(msg);
+            }
+          });
+        });
+      }).catch(console.warn);
+    } 
 
-    var xml = orderRequest(id);
-
+function getItems(xml){
     var result = convert.xml2json(xml, {compact: true, spaces: 4});
 
-    var items = result["ListOrderItemsResponse"]["ListOrderItemsResult"]["OrderItems"];
+    var response = result["ListOrderItemsResponse"]["ListOrderItemsResult"]["OrderItems"];
 
-    var items_string =  JSON.stringify(items);
+    return response;
+}
 
-    var query = "INSERT INTO amazon_orders(AmazonOrderId, serialized) VALUES(id,items_string) ON DUPLICATE KEY UPDATE `serialized` = items_string;"
- 
-     connection.query(query, function (error, results, fields) {
-  
-        if (error){ 
-         return  error; 
-       }else{
-         console.log('inserted: ' + id);
-        return id;
-  }
-});
+function getOrders(xml){
+    var result = convert.xml2json(xml, {compact: true, spaces: 4});
+
+    var response = result["ListOrdersResponse"]["ListOrdersResult"]["Orders"];
+
+    return response;
+}
 
 
 var orders = amazonMws.orders.search({
@@ -88,13 +107,9 @@ var orderRequest = function (id) {
 };
 
 if(orders != null){
-    var orders_obj = convert.xml2json(xml, {compact: true, spaces: 4});
-    
-    connection.connect();
+    var orders = getOrders(xml);
 
-    orders_obj["ListOrdersResponse"]["ListOrdersResult"]["Orders"].forEach(insertOrder)
-
-    connection.end();
+    orders.forEach(streamOrder)
 
 }else{
     console.log('response', 'there were no orders')
