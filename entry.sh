@@ -7,6 +7,7 @@ npm i amqplib --save
 
 
 chmod +x /nodejs/fetch_amazon_orders.js
+chmod +x /php/fetch_ebay_orders.php
 
 # start cron
 /usr/sbin/crond -f -l 8
