@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "This will setup heroku"
+echo "Setting up app on Heroku"
 heroku create --buildpack "https://github.com/HashNuke/heroku-buildpack-elixir.git"
 heroku buildpacks:add https://github.com/gjaldon/heroku-buildpack-phoenix-static.git 
 heroku addons:create heroku-postgresql:hobby-dev
