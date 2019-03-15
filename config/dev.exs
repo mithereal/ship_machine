@@ -11,7 +11,7 @@ config :api, ApiWeb.Endpoint,
       "--mode",
       "development",
       "--watch-stdin",
-      cd: Path.expand("../assets", __DIR__)
+      cd: Path.expand("../apps/api/assets", __DIR__)
     ]
   ]
 
