@@ -29,6 +29,7 @@ ENV AMPQ_EXCHANGE "router"
 
 ENV MYSQL_DATABASE orders
 
+
 COPY ./sql-scripts/ /docker-entrypoint-initdb.d/
 
 ADD crontab.txt /crontab.txt
