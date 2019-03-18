@@ -24,13 +24,12 @@ ENV AMPQ_PORT "AMPQ_PORT"
 ENV AMPQ_USER "AMPQ_USER"
 ENV AMPQ_PASS "AMPQ_PASS"
 ENV AMPQ_VHOST "AMPQ_VHOST"
-
 ENV AMPQ_EXCHANGE "router"
 
 ENV MYSQL_DATABASE orders
 
 
-COPY ./sql-scripts/ /docker-entrypoint-initdb.d/
+#COPY /sql-scripts/. /docker-entrypoint-initdb.d/
 
 ADD crontab.txt /crontab.txt
 ADD script.sh /script.sh
