@@ -28,7 +28,8 @@ defmodule Core.MixProject do
     [
       {:kaur, "~> 1.1"},
       {:bcrypt_elixir, "~> 1.0"},
-      {:guardian, "~> 1.1.0"},
+      {:guardian, "~> 1.2"},
+      {:plug, "~> 1.7"},
       {:guardian_db, "~> 1.1.0"},
       {:floki, "~> 0.20.2"},
       {:html_entities, "~> 0.3"},
