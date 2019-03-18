@@ -1,54 +1,38 @@
-version: "3.1"
-
+version: "3"
 services:
-
-  nodejs:
-    image: node:alpine
-    environment: 
-      NODE_ENV: production
-    working_dir: /home/app
-    restart: always
-    volumes:
-      - ./nodejs:/home/app
+  db:
+    image: postgres:10.2-alpine
+    container_name: myapp-db
+    environment:
+      - POSTGRES_PASSWORD=postgres 
+      - POSTGRES_DB=myapp_prod
+    networks:
+      - nginx-network
+  admin:
+    image: myapp-release
+    container_name: myapp-admin
+    build:
+      context: .
+      dockerfile: Dockerfile.run
+    command: migrate
+    networks:
+      - nginx-network
     depends_on:
-      - php
-    command: ["node", "index"]
-
-  php:
-    image: php:apache
-    volumes:
-      - ./php:/var/www/html
-      
-  composer:
-  restart: 'no'
-  image: composer/composer:php7
-  command: install
-  volumes:
-    - .:/app 
-    
-  rabbit_node_1:
-  image: "rabbitmq:3-management"
-  networks:
-      - back
-  hostname: "rabbit_node_1"
-  environment:
-    RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
-    RABBITMQ_DEFAULT_USER: "rabbitmq"
-    RABBITMQ_DEFAULT_PASS: "rabbitmq"
-    RABBITMQ_DEFAULT_VHOST: "/"
-  ports:
-    - "15672:15672"
-    - "5672:5672"
-  labels:
-    NAME: "rabbit_node_1"
-  tty: true
-    volumes:
-      - rabbit1:/var/lib/rabbitmq
-      - ./conf/:/etc/rabbitmq/
-    command:  bash -c "sleep 10; rabbitmq-server;"
-    volumes:
-  rabbit1:
-    driver: local
-
+      - db
+  server:
+    image: myapp-release
+    container_name: myapp-server
+    environment:
+      - PORT=5000
+      - HOST="myapp.com"
+    expose:
+      - "5000"
+    command: foreground
+    networks:
+      - nginx-network
+    depends_on:
+      - db
+      - admin
 networks:
-  back:
+  nginx-network:
+    external: true
